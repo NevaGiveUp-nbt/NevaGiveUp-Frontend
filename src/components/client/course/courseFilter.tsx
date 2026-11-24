@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Search, X, Filter, RotateCcw } from "lucide-react";
-import { CourseTypeSchema, LevelSchema } from "@/types/generated-zod/schemas";
+import { CourseTypeSchema } from "@/types/generated-zod/schemas/enums/CourseType.schema";
+import { LevelSchema } from "@/types/generated-zod/schemas/enums/Level.schema";
 import { useAllTagsForUser } from "@/hooks/useTag";
 import { TagType } from "@/types/generated-zod/schemas/models/Tag.schema";
 

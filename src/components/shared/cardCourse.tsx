@@ -2,7 +2,8 @@
 import { Star, Users, Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { CourseTypeSchema, LevelSchema } from "@/types/generated-zod/schemas";
+import { CourseTypeSchema } from "@/types/generated-zod/schemas/enums/CourseType.schema";
+import { LevelSchema } from "@/types/generated-zod/schemas/enums/Level.schema";
 import { formatter } from "@/lib/utils";
 
 interface CardCourseProps {

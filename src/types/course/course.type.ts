@@ -1,5 +1,7 @@
+import { CategoryType } from "../generated-zod/schemas/models/Category.schema";
 import { TagType } from "../generated-zod/schemas/models/Tag.schema";
-
+import { CourseType as ICourseType } from "@/types/generated-zod/schemas/models/Course.schema"
+import { UserType } from "../generated-zod/schemas/models/User.schema";
 export { };
 declare global {
     /**
@@ -55,4 +57,16 @@ declare global {
      * Combines pagination (from FindAllQueryParams) with filter values.
      */
     interface CourseUserQueryParams extends FindAllQueryParams, CourseFilterValues { }
+
+    type CourseResponse = Omit<ICourseType, "tags" | "courseDescription" | "category" | "instructor"> & {
+        tags: TagType[];
+        courseDescription: {
+            introduction: string;
+            learningOutcomes: string;
+            requirements: string | null;
+            resources: string | null;
+        } | null;
+        category: CategoryType;
+        instructor: UserType;
+    };
 }

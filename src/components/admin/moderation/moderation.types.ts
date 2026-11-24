@@ -1,4 +1,7 @@
-import { CourseStatus, CourseType, Level, VideoUploadStatus, VideoUploadStatusSchema } from "@/types/generated-zod/schemas";
+import type { CourseStatus } from "@/types/generated-zod/schemas/enums/CourseStatus.schema";
+import type { CourseType } from "@/types/generated-zod/schemas/enums/CourseType.schema";
+import type { Level } from "@/types/generated-zod/schemas/enums/Level.schema";
+import { type VideoUploadStatus, VideoUploadStatusSchema } from "@/types/generated-zod/schemas/enums/VideoUploadStatus.schema";
 
 export interface ModerationResource {
     id: number;

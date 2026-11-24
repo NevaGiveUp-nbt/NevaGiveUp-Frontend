@@ -4,7 +4,8 @@ import Image from "next/image";
 import { fadeIn, staggerContainer } from "@/components/client/animation/animations";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { CourseTypeSchema, LevelSchema } from "@/types/generated-zod/schemas";
+import { CourseTypeSchema } from "@/types/generated-zod/schemas/enums/CourseType.schema";
+import { LevelSchema } from "@/types/generated-zod/schemas/enums/Level.schema";
 import { CourseSkeletonLoader } from "./FeatureCourse/courseSkeleton";
 
 interface FeatureCoursesProps {

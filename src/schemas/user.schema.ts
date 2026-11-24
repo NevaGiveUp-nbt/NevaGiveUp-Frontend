@@ -1,6 +1,6 @@
 import { SYSTEM_ROLES } from '@/constants/roles.constant';
-import { RoleSchema } from '@/types/generated-zod/schemas';
-import { UserSchema } from '@/types/generated-zod/schemas/models';
+import { RoleSchema } from '@/types/generated-zod/schemas/models/Role.schema';
+import { UserSchema } from '@/types/generated-zod/schemas/models/User.schema';
 
 import * as z from "zod";
 

@@ -4,7 +4,9 @@ import React, { useEffect, useState, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UpdateCourseSchema, IUpdateCourse } from "@/schemas/course.schema";
-import { CourseStatusSchema, CourseTypeSchema, LevelSchema } from "@/types/generated-zod/schemas";
+import { CourseStatusSchema } from "@/types/generated-zod/schemas/enums/CourseStatus.schema";
+import { CourseTypeSchema } from "@/types/generated-zod/schemas/enums/CourseType.schema";
+import { LevelSchema } from "@/types/generated-zod/schemas/enums/Level.schema";
 import { CourseType as ICourseType } from "@/types/generated-zod/schemas/models/Course.schema"
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -38,7 +40,6 @@ import { toast } from "sonner";
 import { CloudinaryService } from "@/services/cloudinary";
 import { useUpdateCourse } from "@/hooks/useCourse";
 import { Badge } from "@/components/ui/badge";
-import { CourseResponse } from "./courses";
 import { CategoryResponse } from "../categories/categories";
 import { MAX_IMAGE_SIZE } from "@/constants/image.constants";
 

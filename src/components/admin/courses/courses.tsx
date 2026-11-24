@@ -27,24 +27,15 @@ import ModalViewCourse from "./modal-view-course";
 import { ConfirmModal } from "@/components/shared/data-table-confirm-modal";
 import { useAllTags } from "@/hooks/useTag";
 import { useAllInstructors } from "@/hooks/useUser";
-import { CourseStatusSchema, CourseTypeSchema, LevelSchema } from "@/types/generated-zod/schemas";
+import { CourseStatusSchema } from "@/types/generated-zod/schemas/enums/CourseStatus.schema";
+import { CourseTypeSchema } from "@/types/generated-zod/schemas/enums/CourseType.schema";
+import { LevelSchema } from "@/types/generated-zod/schemas/enums/Level.schema";
 import { TagType } from "@/types/generated-zod/schemas/models/Tag.schema";
-import { CourseType as ICourseType } from "@/types/generated-zod/schemas/models/Course.schema"
 import { useAllCategories } from "@/hooks/useCategory";
 import { CategoryType } from "@/types/generated-zod/schemas/models/Category.schema";
 import { CategoryResponse } from "../categories/categories";
 import { UserType } from "@/types/generated-zod/schemas/models/User.schema";
-export type CourseResponse = Omit<ICourseType, "tags" | "courseDescription" | "category" | "instructor"> & {
-    tags: TagType[];
-    courseDescription: {
-        introduction: string;
-        learningOutcomes: string;
-        requirements: string | null;
-        resources: string | null;
-    } | null;
-    category: CategoryType;
-    instructor: UserType;
-};
+
 
 export default function Course() {
 

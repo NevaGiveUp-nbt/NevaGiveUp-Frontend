@@ -5,19 +5,16 @@ import { formatLessonDuration, formatSectionDuration } from '@/lib/utils';
 import CoursePreviewModal from "./CoursePreviewModal";
 import { LessonType } from "@/types/generated-zod/schemas/models/Lesson.schema";
 import { SectionType } from "@/types/generated-zod/schemas/models/Section.schema";
+import { SectionTypeResponse } from "@/types/learning/learning.type";
 
 
 
-export type SectionTypeResponse = Omit<SectionType, "lessons"> & {
-  lessonCount: number;
-  totalDuration: number;
-  lessons: LessonType[];
-};
+
 interface CourseContentProps {
   sections: SectionTypeResponse[];
   totalLessons: number;
   totalDuration: number;
-  slug:string;
+  slug: string;
 }
 
 
@@ -33,7 +30,7 @@ export default function CourseContent({
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [expandedChapters, setExpandedChapters] = useState<number[]>(sections?.length > 0 ? [sections[0].id] : []);
   const toggleChapter = (id: number) => {
-    setExpandedChapters(prev => 
+    setExpandedChapters(prev =>
       prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
     );
   };
@@ -71,8 +68,8 @@ export default function CourseContent({
           const isExpanded = expandedChapters.includes(chapter.id);
           return (
             <div key={chapter.id} className="bg-card">
-              <button 
-                onClick={() => toggleChapter(chapter.id)} 
+              <button
+                onClick={() => toggleChapter(chapter.id)}
                 className="w-full px-5 py-4 flex items-center justify-between gap-4 hover:bg-muted/50 transition text-left"
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -85,17 +82,14 @@ export default function CourseContent({
                   {chapter.lessonCount} bài giảng • {formatSectionDuration(chapter.totalDuration)}
                 </div>
               </button>
-              
+
               <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
                 <div className="border-t border-border bg-muted/20 divide-y divide-border">
                   {chapter.lessons.map(lesson => (
                     <div key={lesson.id} className="px-5 py-3 flex items-center justify-between gap-4 hover:bg-muted/40 transition text-xs sm:text-sm">
                       <div className="flex items-center gap-3 min-w-0">
-                        {lesson.isPreview ? (
-                          <PlayCircle className="w-4 h-4 text-muted-foreground shrink-0" />
-                        ) : (
-                          <Lock className="w-4 h-4 text-muted-foreground/50 shrink-0" />
-                        )}
+                        <PlayCircle className="w-4 h-4 text-muted-foreground shrink-0" />
+
                         <span className={`${lesson.isPreview ? 'text-foreground' : 'text-muted-foreground'} truncate`}>{lesson.title}</span>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
@@ -116,7 +110,7 @@ export default function CourseContent({
       </div>
       {/* PREVIEW VIDEO MODAL */}
       {isVideoModalOpen && (
-        <CoursePreviewModal 
+        <CoursePreviewModal
           isVideoModalOpen={isVideoModalOpen}
           setIsVideoModalOpen={setIsVideoModalOpen}
           slug={slug}

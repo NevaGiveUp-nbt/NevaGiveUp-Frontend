@@ -1,4 +1,4 @@
-import { LessonSchema } from "@/types/generated-zod/schemas";
+import { LessonSchema } from "@/types/generated-zod/schemas/models/Lesson.schema";
 import z from "zod";
 export const CreateLessonSchema = LessonSchema.pick({
     title: true,

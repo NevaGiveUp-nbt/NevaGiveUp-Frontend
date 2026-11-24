@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { BookOpen, FolderGit2, ExternalLink, Check, CheckCircle, StepForward, Info, LinkIcon, Tags, BarChart, CreditCard } from "lucide-react";
 import { ModerationCourse } from "../../moderation.types";
 import { DescriptionList } from "@/components/shared/DescriptionList";
-import { CourseTypeSchema } from "@/types/generated-zod/schemas";
+import { CourseTypeSchema } from "@/types/generated-zod/schemas/enums/CourseType.schema";
 
 export default function TabInfo({
     course,

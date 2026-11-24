@@ -1,4 +1,4 @@
-import { TagSchema } from "@/types/generated-zod/schemas";
+import { TagSchema } from "@/types/generated-zod/schemas/models/Tag.schema";
 import { z } from "zod";
 
 

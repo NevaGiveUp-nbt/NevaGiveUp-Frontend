@@ -35,7 +35,7 @@ import TabAudit from "./components/modal-review-component/tab-audit";
 import TabReason from "./components/modal-review-component/tab-reason";
 import { Loader2 } from "lucide-react";
 import { useApproveCourse, useModerationReview } from "@/hooks/useCourse";
-import { CourseStatusSchema } from "@/types/generated-zod/schemas";
+import { CourseStatusSchema } from "@/types/generated-zod/schemas/enums/CourseStatus.schema";
 import ModalValidationError from "@/components/shared/modal-validation-error";
 
 interface ModalCourseReviewProps {

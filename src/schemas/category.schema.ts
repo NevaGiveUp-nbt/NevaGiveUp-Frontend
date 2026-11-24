@@ -1,4 +1,5 @@
-import { CategorySchema, TagSchema } from "@/types/generated-zod/schemas";
+import { CategorySchema } from "@/types/generated-zod/schemas/models/Category.schema";
+import { TagSchema } from "@/types/generated-zod/schemas/models/Tag.schema";
 import { z } from "zod";
 
 

@@ -26,7 +26,7 @@ import KpiCard from "@/components/shared/SummaryCard";
 import { DataTableToolbar } from "@/components/shared/data-table-toolbar";
 import { DataTableSelectedToolbar } from "@/components/shared/data-table-selection-toolbar";
 import { toast } from "sonner";
-import { RoleSchema } from "@/types/generated-zod/schemas";
+import { RoleSchema } from "@/types/generated-zod/schemas/models/Role.schema";
 import { SYSTEM_ROLES } from "@/constants/roles.constant";
 import { UserType } from "@/types/generated-zod/schemas/models/User.schema";
 import { RoleType } from "@/types/generated-zod/schemas/models/Role.schema";

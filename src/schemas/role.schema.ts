@@ -1,4 +1,4 @@
-import { RoleSchema } from "@/types/generated-zod/schemas";
+import { RoleSchema } from "@/types/generated-zod/schemas/models/Role.schema";
 import { z } from "zod";
 
 export const ChangeRoleStatusSchema = z.object({

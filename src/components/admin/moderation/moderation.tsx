@@ -47,7 +47,7 @@ import ViewModeSwitcher from "./components/view-mode-switcher";
 import GridCardView from "./components/grid-card-view";
 import { useModerationKpis, useModerationList } from "@/hooks/useCourse";
 import { Loader2 } from "lucide-react";
-import { CourseTypeSchema } from "@/types/generated-zod/schemas";
+import { CourseTypeSchema } from "@/types/generated-zod/schemas/enums/CourseType.schema";
 
 export default function Moderation() {
     const CourseType = CourseTypeSchema.enum;

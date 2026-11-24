@@ -1,5 +1,5 @@
 
-import {CourseReviewSchema} from "@/types/generated-zod/schemas";
+import { CourseReviewSchema } from "@/types/generated-zod/schemas/models/CourseReview.schema";
 import z from "zod";
 export const CreateCourseReviewSchema = CourseReviewSchema
 .pick({

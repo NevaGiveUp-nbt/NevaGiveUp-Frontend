@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { usePaymentPolling } from '@/hooks/usePayment';
 import { CheckCircle, XCircle, Loader2, AlertCircle, Copy, Clock } from 'lucide-react';
 import { message } from 'antd';
-import { PaymentStatusSchema } from '@/types/generated-zod/schemas';
+import { PaymentStatusSchema } from '@/types/generated-zod/schemas/enums/PaymentStatus.schema';
 import { Separator } from '@/components/ui/separator';
 interface PaymentProps {
     orderNumber: string;

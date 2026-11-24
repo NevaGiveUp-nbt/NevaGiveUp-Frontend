@@ -1,5 +1,5 @@
 
-import { InteractionSchema } from "@/types/generated-zod/schemas";
+import { InteractionSchema } from "@/types/generated-zod/schemas/models/Interaction.schema";
 import z from "zod";
 export const CreateInteractionSchema = InteractionSchema.pick({
     targetId: true,

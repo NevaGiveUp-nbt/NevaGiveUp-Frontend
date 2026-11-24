@@ -4,7 +4,9 @@ import React, { useState, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateCourseSchema, ICreateCourse } from "@/schemas/course.schema";
-import { CourseStatusSchema, CourseTypeSchema, LevelSchema } from "@/types/generated-zod/schemas";
+import { CourseStatusSchema } from "@/types/generated-zod/schemas/enums/CourseStatus.schema";
+import { CourseTypeSchema } from "@/types/generated-zod/schemas/enums/CourseType.schema";
+import { LevelSchema } from "@/types/generated-zod/schemas/enums/Level.schema";
 import { useCreateCourse } from "@/hooks/useCourse";
 import { cn } from "@/lib/utils";
 

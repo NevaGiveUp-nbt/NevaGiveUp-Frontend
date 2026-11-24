@@ -9,7 +9,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IUpdateUser, IUpdateUserInput, UpdateUserSchema } from "@/schemas/user.schema";
 import { UserType } from "@/types/generated-zod/schemas/models/User.schema";
-import { RoleSchema } from "@/types/generated-zod/schemas";
+import { RoleSchema } from "@/types/generated-zod/schemas/models/Role.schema";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

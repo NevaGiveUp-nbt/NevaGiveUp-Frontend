@@ -8,7 +8,7 @@ import {
   EyeOff,
   type LucideIcon 
 } from "lucide-react";
-import { CourseStatus } from "@/types/generated-zod/schemas";
+import type { CourseStatus } from "@/types/generated-zod/schemas/enums/CourseStatus.schema";
 
 interface StatusConfig {
   label: string;

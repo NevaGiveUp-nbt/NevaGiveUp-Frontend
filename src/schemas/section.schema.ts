@@ -1,4 +1,4 @@
-import { SectionSchema } from "@/types/generated-zod/schemas";
+import { SectionSchema } from "@/types/generated-zod/schemas/models/Section.schema";
 import z from "zod";
 
 export const CreateSectionSchema = SectionSchema.pick({

@@ -30,8 +30,9 @@ import {
 } from "lucide-react";
 import { useSections } from "@/hooks/useSection";
 import { formatDate, formatLessonDuration, formatSectionDuration } from "@/lib/utils";
-import { CourseTypeSchema, LevelSchema } from "@/types/generated-zod/schemas";
-import { CourseResponse } from "./courses";
+import { CourseTypeSchema } from "@/types/generated-zod/schemas/enums/CourseType.schema";
+import { LevelSchema } from "@/types/generated-zod/schemas/enums/Level.schema";
+
 import { DescriptionList } from "@/components/shared/DescriptionList";
 import { CourseStatusBadge } from "@/components/shared/courseStatus";
 

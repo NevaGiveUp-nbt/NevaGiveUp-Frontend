@@ -1,6 +1,6 @@
 import React from "react";
 import { UserCheck, BookOpen, Users, BarChart } from "lucide-react";
-import { LevelSchema } from "@/types/generated-zod/schemas";
+import { LevelSchema } from "@/types/generated-zod/schemas/enums/Level.schema";
 
 export default function CourseQuickInfo({ instructorName, totalLessons, studentCount, level }: { instructorName: string, totalLessons: number, studentCount: number, level: string }) {
   const levelSchema = LevelSchema.enum;

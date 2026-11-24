@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { PaymentService, PaymentResponse } from "@/services/payment";
 import { toast } from "sonner";
-import { PaymentStatusSchema } from "@/types/generated-zod/schemas";
+import { PaymentStatusSchema } from "@/types/generated-zod/schemas/enums/PaymentStatus.schema";
 
 /**
  * Hook polling payment status theo id.

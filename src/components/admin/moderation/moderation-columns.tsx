@@ -9,7 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CourseStatusBadge } from "@/components/shared/courseStatus";
 import { ModerationListCourse } from "./moderation.types";
 import { formatDate, formatSectionDuration, getInitials } from "@/lib/utils";
-import { CourseStatus, CourseTypeSchema } from "@/types/generated-zod/schemas";
+import type { CourseStatus } from "@/types/generated-zod/schemas/enums/CourseStatus.schema";
+import { CourseTypeSchema } from "@/types/generated-zod/schemas/enums/CourseType.schema";
 
 export const getModerationColumns = (
     onReview: (course: ModerationListCourse) => void

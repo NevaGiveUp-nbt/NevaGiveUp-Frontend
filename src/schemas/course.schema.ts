@@ -1,5 +1,7 @@
-import { CourseStatusSchema, CourseTypeSchema, LevelSchema } from "@/types/generated-zod/schemas";
-import { CourseSchema } from "@/types/generated-zod/schemas/models";
+import { CourseStatusSchema } from "@/types/generated-zod/schemas/enums/CourseStatus.schema";
+import { CourseTypeSchema } from "@/types/generated-zod/schemas/enums/CourseType.schema";
+import { LevelSchema } from "@/types/generated-zod/schemas/enums/Level.schema";
+import { CourseSchema } from "@/types/generated-zod/schemas/models/Course.schema";
 import * as z from "zod";
 
 

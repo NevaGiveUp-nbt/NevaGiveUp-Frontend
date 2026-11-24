@@ -11,8 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Edit, Info, Lock, MoreHorizontal, Trash2, Unlock, Layers, Check, CheckCircle2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useChangeStatus } from "@/hooks/useCourse"
-import { CourseResponse } from "./courses"
-import { CourseStatusSchema } from "@/types/generated-zod/schemas"
+import { CourseStatusSchema } from "@/types/generated-zod/schemas/enums/CourseStatus.schema"
 
 
 interface CourseCellActionProps {

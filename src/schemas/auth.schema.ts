@@ -1,4 +1,5 @@
-import { Password_ResetsSchema, UserSchema } from '@/types/generated-zod/schemas/models';
+import { Password_ResetsSchema } from '@/types/generated-zod/schemas/models/Password_Resets.schema';
+import { UserSchema } from '@/types/generated-zod/schemas/models/User.schema';
 import * as z from "zod";
 
 export const signInSchema = UserSchema.pick({
