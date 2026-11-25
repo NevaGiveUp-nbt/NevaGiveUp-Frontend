@@ -29,21 +29,11 @@ jobs:
           path: Front-end
           persist-credentials: false
 
-      - name: Check access to the private backend
-        env:
-          BACKEND_READ_TOKEN: ${{ secrets.BACKEND_READ_TOKEN }}
-        run: |
-          if [ -z "$BACKEND_READ_TOKEN" ]; then
-            echo "::error::Set BACKEND_READ_TOKEN in the frontend repository. See README.md."
-            exit 1
-          fi
-
       - name: Check out backend Prisma schema
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           repository: nbt2308/NevaGiveUp-Backend
           ref: 0fc2cfe415501b894d2310f6abcdf6bea5be03d7
-          token: ${{ secrets.BACKEND_READ_TOKEN }}
           path: Back-end
           persist-credentials: false
           sparse-checkout: |
