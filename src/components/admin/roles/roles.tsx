@@ -248,6 +248,7 @@ export default function RoleManagement() {
                     )}
                     <ConfirmModal
                         isOpen={isDeleteOpen}
+                        type = {"delete"}
                         onClose={() => { setIsDeleteOpen(false); setSelectedRole(null); }}
                         title="Bạn có chắc chắn muốn xoá vai trò này?"
                         description={

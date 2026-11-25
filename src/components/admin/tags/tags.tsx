@@ -302,6 +302,7 @@ export default function Tag() {
                     )}
                     <ConfirmModal
                         isOpen={isDeleteOpen}
+                        type = {"delete"}
                         onClose={() => { setIsDeleteOpen(false); setSelectedTag(null); }}
                         onConfirm={confirmDelete}
                         title="Xóa Tag?"
