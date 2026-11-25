@@ -33,9 +33,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 [Frontend CI](.github/workflows/ci.yml) chạy khi mở hoặc cập nhật PR vào `main`, push lên `main` và khi chọn **Run workflow** trong tab **Actions**. Runner dùng Node.js 24, cài theo lockfile, sinh Zod schema, chạy ESLint và production build.
 
-1. Tạo fine-grained personal access token với quyền **Contents → Read-only** giới hạn ở repo `nbt2308/NevaGiveUp-Backend`. [Tài liệu token GitHub](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
-2. Trong repo frontend, vào **Settings → Secrets and variables → Actions → New repository secret**. Đặt tên `BACKEND_READ_TOKEN`.
-3. Push workflow lên một nhánh trong repo frontend, mở PR vào `main` và xem **Frontend checks**. PR từ fork thiếu secret để checkout backend private.
+Workflow đọc repo public `nbt2308/NevaGiveUp-Backend` bằng quyền đọc mặc định của GitHub Actions. Push workflow lên một nhánh trong repo frontend, mở PR vào `main` và xem **Frontend checks**.
 
 Workflow ghim commit backend ở trường `ref`. Khi cần schema mới, đưa thay đổi lên BE trước, rồi cập nhật `ref` trong PR của FE. Runner sinh `src/types/generated-zod/` trước khi build, nên có thể giữ thư mục trong `.gitignore`.
 
