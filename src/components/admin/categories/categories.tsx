@@ -326,6 +326,7 @@ export default function Category() {
                     )}
                     <ConfirmModal
                         isOpen={isDeleteOpen}
+                        type = {"delete"}
                         onClose={() => { setIsDeleteOpen(false); setSelectedCategory(null); }}
                         onConfirm={confirmDelete}
                         title="Xóa danh mục?"
