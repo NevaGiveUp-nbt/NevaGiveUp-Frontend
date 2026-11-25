@@ -372,6 +372,7 @@ export default function User() {
                     )}
                     <ConfirmModal
                         isOpen={isDeleteOpen}
+                        type = {"delete"}
                         onClose={() => { setIsDeleteOpen(false); setSelectedUser(null); }}
                         onConfirm={confirmDelete}
                         title="Xóa Tài khoản?"

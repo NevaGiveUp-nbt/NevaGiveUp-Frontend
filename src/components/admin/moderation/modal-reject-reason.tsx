@@ -52,7 +52,7 @@ export default function ModalRejectReason({
         },
     });
     const [selectedPresets, setSelectedPresets] = useState<string[]>([]);
-
+    const { mutate: rejectCourse, isPending } = useRejectCourse();
     useEffect(() => {
         if (course) {
             form.reset({
@@ -83,9 +83,9 @@ export default function ModalRejectReason({
             form.setValue("reason_rejected", "", { shouldValidate: true });
         }
     };
-    const {mutate:rejectCourse, isPending} = useRejectCourse();
+
     const onSubmit = async (data: IRejectCourse) => {
-        rejectCourse(data,{ 
+        rejectCourse(data, {
             onSuccess: () => {
                 form.reset();
                 onClose(); // Đóng modal reject

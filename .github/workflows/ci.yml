@@ -1,0 +1,93 @@
+name: Frontend CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Frontend checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+
+    steps:
+      - name: Check out frontend
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          path: Front-end
+          persist-credentials: false
+
+      - name: Check access to the private backend
+        env:
+          BACKEND_READ_TOKEN: ${{ secrets.BACKEND_READ_TOKEN }}
+        run: |
+          if [ -z "$BACKEND_READ_TOKEN" ]; then
+            echo "::error::Set BACKEND_READ_TOKEN in the frontend repository. See README.md."
+            exit 1
+          fi
+
+      - name: Check out backend Prisma schema
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          repository: nbt2308/NevaGiveUp-Backend
+          ref: 0fc2cfe415501b894d2310f6abcdf6bea5be03d7
+          token: ${{ secrets.BACKEND_READ_TOKEN }}
+          path: Back-end
+          persist-credentials: false
+          sparse-checkout: |
+            prisma
+
+      - name: Set up Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: |
+            Front-end/package-lock.json
+            Back-end/package-lock.json
+
+      - name: Install backend generator dependencies
+        working-directory: Back-end
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: Front-end
+        run: npm ci
+
+      - name: Generate frontend Prisma Client and Zod schemas
+        working-directory: Back-end
+        run: |
+          npm exec -- prisma generate --generator client --generator client_frontend --generator zod
+          if [ ! -s ../Front-end/src/types/generated-zod/schemas/models/Course.schema.ts ] ||
+             [ ! -s ../Front-end/node_modules/.prisma/client/index.d.ts ]; then
+            echo "::error::Prisma did not generate the frontend client and schema files."
+            exit 1
+          fi
+
+      - name: Lint frontend source
+        id: lint
+        continue-on-error: true
+        working-directory: Front-end
+        run: npm run lint -- src --ignore-pattern 'src/types/generated-zod/**'
+
+      - name: Report existing lint issues
+        if: steps.lint.outcome == 'failure'
+        run: echo "::warning::Frontend ESLint reported issues. See the lint step for details."
+
+      - name: Build frontend and check types
+        working-directory: Front-end
+        env:
+          NEXT_PUBLIC_API_URL: http://127.0.0.1:8080/api/v1
+        run: npm run build
