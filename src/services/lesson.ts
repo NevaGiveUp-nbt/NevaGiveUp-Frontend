@@ -8,10 +8,10 @@ export const LessonService = {
             const formData = new FormData();
             formData.append("title", lessonData.title);
             if (lessonData.content) formData.append("content", lessonData.content);
-            formData.append("order", String(lessonData.order));
+            if (lessonData.order !== undefined) formData.append("order", String(lessonData.order));
             formData.append("isPreview", String(lessonData.isPreview));
             formData.append("sectionId", String(lessonData.sectionId));
-            
+
             if (lessonData.video instanceof File) {
                 formData.append("video", lessonData.video);
             } else if (lessonData.video instanceof FileList && lessonData.video.length > 0) {
@@ -31,10 +31,9 @@ export const LessonService = {
             const formData = new FormData();
             if (lessonData.title !== undefined) formData.append("title", lessonData.title);
             if (lessonData.content !== undefined) formData.append("content", lessonData.content);
-            if (lessonData.order !== undefined) formData.append("order", String(lessonData.order));
             if (lessonData.isPreview !== undefined) formData.append("isPreview", String(lessonData.isPreview));
             if (lessonData.sectionId !== undefined) formData.append("sectionId", String(lessonData.sectionId));
-            
+
             if (lessonData.video instanceof File) {
                 formData.append("video", lessonData.video);
             } else if (lessonData.video instanceof FileList && lessonData.video.length > 0) {
@@ -71,7 +70,7 @@ export const LessonService = {
             throw new Error(error.message)
         }
     },
-    getPreviewLesson:async (slug:string, lessonId:number)=>{
+    getPreviewLesson: async (slug: string, lessonId: number) => {
         try {
             const response = await axiosClient.get(`/courses/${slug}/preview/${lessonId}`);
             return response.data;
@@ -86,5 +85,16 @@ export const LessonService = {
         } catch (error: any) {
             throw new Error(error.message)
         }
+    },
+    reorderLessons: async (sectionId: number, lessonIds: number[]) => {
+         try {
+            const response = await axiosClient.patch('/lessons/reorder', { sectionId, lessonIds });
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.message)
+        }
     }
+
+
+
 }

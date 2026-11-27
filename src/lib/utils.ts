@@ -84,6 +84,18 @@ export const formatter = new Intl.NumberFormat("vi-VN", {
   currency: "VND",
 })
 
+export function getCoursePricing(price: number | string, discount: number | string | null | undefined) {
+  const originalPrice = Number(price);
+  const salePrice = Number(discount);
+  const hasDiscount = salePrice > 0 && salePrice < originalPrice;
+
+  return {
+    originalPrice,
+    finalPrice: hasDiscount ? salePrice : originalPrice,
+    hasDiscount,
+  };
+}
+
 export const formatFileSize = (bytes: number | null | undefined) => {
   if (!bytes) return "N/A";
   if (bytes < 1024) return `${bytes} B`;

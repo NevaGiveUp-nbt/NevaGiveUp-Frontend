@@ -20,9 +20,9 @@ export const SectionService = {
             throw new Error(error.message)
         }
     },
-    updateSection: async (sectionId: number, sectionData: IUpdateSection) => {
+    updateSection: async (sectionId: number, { title, courseId }: IUpdateSection) => {
         try {
-            const response = await axiosClient.patch(`/sections/${sectionId}`, sectionData);
+            const response = await axiosClient.patch(`/sections/${sectionId}`, { title, courseId });
             return response.data;
         } catch (error: any) {
             throw new Error(error.message)
@@ -31,6 +31,14 @@ export const SectionService = {
     deleteSection: async (sectionId: number) => {
         try {
             const response = await axiosClient.delete(`/sections/${sectionId}`);
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.message)
+        }
+    },
+    reorderSections: async (courseId: string, sectionIds: number[]) => {
+        try {
+            const response = await axiosClient.patch('/sections/reorder', { courseId, sectionIds });
             return response.data;
         } catch (error: any) {
             throw new Error(error.message)
