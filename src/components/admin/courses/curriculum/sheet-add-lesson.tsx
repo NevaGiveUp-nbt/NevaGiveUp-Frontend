@@ -35,7 +35,6 @@ export const SheetAddLesson = ({ sectionId, open, onOpenChange }: sheetAddLesson
         resolver: zodResolver(CreateLessonSchema),
         defaultValues: {
             title: "",
-            order: 0,
             content: "",
             isPreview: false,
             sectionId: sectionId,
@@ -184,15 +183,16 @@ export const SheetAddLesson = ({ sectionId, open, onOpenChange }: sheetAddLesson
                                     render={({ field, fieldState }) => (
                                         <Field data-invalid={fieldState.invalid}>
                                             <FieldLabel htmlFor="section-order">
-                                                Thứ tự <span className="text-red-500">*</span>
+                                                Thứ tự (không bắt buộc)
                                             </FieldLabel>
                                             <Input
                                                 {...field}
-                                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                                value={field.value ?? ""}
+                                                onChange={(e) => field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)}
                                                 id="section-order"
                                                 type="number"
-                                                min={0}
-                                                placeholder="1"
+                                                min={1}
+                                                placeholder="Tự động"
                                                 autoComplete="off"
                                             />
                                             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

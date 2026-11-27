@@ -21,9 +21,11 @@ import { usePreviewLesson } from "@/hooks/useLession";
 import { useCreateOrder } from "@/hooks/useOrder";
 import { useRouter } from "next/navigation";
 import { useCreatePayment } from "@/hooks/usePayment";
+import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 
-export default function CourseDetail({ slug }: { slug?: string }) {
+export default function CourseDetail({ slug, isOwner, isAdmin }: { slug?: string, isOwner?: boolean | null, isAdmin?: boolean | null }) {
   const { data: course, isLoading, isError } = useCourseBySlug(slug);
   const [isStickyVisible, setIsStickyVisible] = useState(false);
 
@@ -31,10 +33,10 @@ export default function CourseDetail({ slug }: { slug?: string }) {
   const [previewTitle, setPreviewTitle] = useState("");
   const [toastMessage, setToastMessage] = useState("");
   const { mutateAsync: createOrder } = useCreateOrder();
-  const {mutateAsync:createPayment}=useCreatePayment();
+  const { mutateAsync: createPayment } = useCreatePayment();
   const router = useRouter();
   const heroRef = useRef<HTMLDivElement>(null);
-
+  const { status } = useSession()
   useEffect(() => {
     const handleScroll = () => {
       if (heroRef.current) {
@@ -42,68 +44,81 @@ export default function CourseDetail({ slug }: { slug?: string }) {
         setIsStickyVisible(heroBottom < 50);
       }
     };
-    
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  
+
 
 
   if (isLoading) return <div className="flex h-screen items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (isError || !course) return <div className="flex h-screen items-center justify-center text-red-500">Không tìm thấy khóa học!</div>;
 
 
-  //Preview lesson
-  
-  
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(""), 3000);
-  };
 
   const handleEnroll = async () => {
-    const order = await createOrder(course.id);
-
-    if(order){
-      const payment = await createPayment(order.id);
-      if(payment){
-        router.push(`/payment/${order.orderNumber}`);
-      }
+    if (status !== "authenticated") {
+      router.push(`/auth/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`);
+      return;
     }
-    
+    try {
+      const order = await createOrder(course.id);
+
+      if (order) {
+        const payment = await createPayment(order.id);
+        if (payment) {
+          router.push(`/payment/${order.orderNumber}`);
+        }
+      }
+    } catch { }
+
+
   };
 
+  const handleLearning = () => {
+    if (!course.isEnrolled) {
+      toast.error("Bạn chưa đăng ký học khóa học này!");
+      return;
+    }
+    router.push(`/learning/${slug}`)
+  }
 
-  const addToCart = () => showToast('Đã thêm khóa học vào giỏ hàng thành công!');
+
+  const addToCart = () => toast.success("Đã thêm khóa học vào giỏ hàng thành công!");
   const shareCourse = () => {
     navigator.clipboard.writeText(window.location.href);
-    showToast('Đã sao chép đường dẫn khóa học!');
+    toast.info("Đã sao chép đường dẫn khóa học!")
   };
 
-  
 
-  
+
+
   return (
     <div className="bg-background text-foreground antialiased min-h-screen flex flex-col selection:bg-primary selection:text-primary-foreground">
-      
+
       {/* STICKY TOP BAR */}
-      <CourseStickyTopBar 
+      <CourseStickyTopBar
         isStickyVisible={isStickyVisible}
         course={course}
         handleEnroll={handleEnroll}
+        handleLearning={handleLearning}
+        isAdmin={isAdmin ?? false}
+        isOwner={isOwner ?? false}
+        onEditCourse={() => router.push(`/instructor/courses/${course.id}`)}
+        onManageCourse={() => router.push(`/admin/courses`)}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 container mx-auto px-6 md:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
           {/* LEFT COLUMN: MAIN CONTENT */}
           <div className="lg:col-span-8 space-y-8">
-            
+
             {/* HERO HEADER */}
             <div ref={heroRef} id="course-hero-header" className="space-y-4">
-              <CourseBreadcrumb title={course.title}/>
+              <CourseBreadcrumb title={course.title} />
 
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight leading-tight">
                 {course.title}
@@ -138,7 +153,7 @@ export default function CourseDetail({ slug }: { slug?: string }) {
             <CourseQuickInfo instructorName={course.instructor?.name} totalLessons={course.totalLessons} studentCount={course.studentCount} level={course.level} />
 
             {/* COURSE CONTENT */}
-            <CourseContent 
+            <CourseContent
               sections={course.sections}
               totalLessons={course.totalLessons}
               totalDuration={course.totalDuration}
@@ -158,7 +173,7 @@ export default function CourseDetail({ slug }: { slug?: string }) {
             <CourseInstructor instructor={course.instructor} />
 
             {/* RATINGS & REVIEWS */}
-            <CourseReviews slug={course.slug}/>
+            <CourseReviews slug={course.slug} />
 
             {/* RELATED COURSES */}
             <CourseRelated slug={course.slug} />
@@ -166,7 +181,7 @@ export default function CourseDetail({ slug }: { slug?: string }) {
           </div>
 
           {/* RIGHT COLUMN: STICKY PURCHASE CARD */}
-          <CoursePurchaseCard 
+          <CoursePurchaseCard
             isStickyVisible={isStickyVisible}
             price={course.price}
             discount={course.discount}
@@ -174,15 +189,21 @@ export default function CourseDetail({ slug }: { slug?: string }) {
             thumbnail={course.thumbnail}
             totalDuration={course.totalDuration}
             handleEnroll={handleEnroll}
+            handleLearning={handleLearning}
             addToCart={addToCart}
             shareCourse={shareCourse}
             isEnrolled={course.isEnrolled}
+            isOwner={isOwner ?? false}
+            isAdmin={isAdmin ?? false}
+            onEditCourse={() => router.push(`/instructor/courses/${course.id}`)}
+            onViewStats={() => router.push(`/instructor/courses/${course.id}/stats`)}
+            onManageCourse={() => router.push(`/admin/courses`)}
           />
 
         </div>
       </main>
 
-      
+
 
       {/* TOAST NOTIFICATION - temporarily disabled */}
       {/* {toastMessage && (

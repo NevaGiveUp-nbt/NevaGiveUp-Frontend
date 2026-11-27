@@ -1,5 +1,17 @@
 "use client";
-
+import {
+    DndContext, closestCenter, PointerSensor, KeyboardSensor,
+    useSensor, useSensors, type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+    SortableContext, verticalListSortingStrategy, arrayMove,
+    useSortable, sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react"; // thêm vào dòng import lucide-react hiện có
+import { useReorderSections } from "@/hooks/useSection"; // gộp vào dòng import useSection
+import { useReorderLessons } from "@/hooks/useLession";  // gộp vào dòng import useLession
+import { cn } from "@/lib/utils";                        // gộp vào dòng import từ "@/lib/utils"
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowLeft, FileVideo, Edit2, Trash2, Eye, BookOpen, Clock, Layers, FileText, Play, Download, Loader2, Paperclip } from "lucide-react";
@@ -36,6 +48,56 @@ export type LessonWithResources = LessonType & {
 export type SectionTypeResponse = Omit<SectionType, "lessons"> & {
     lessons: LessonWithResources[];
 };
+
+function DragHandle(props: React.ComponentProps<"button">) {
+    return (
+        <button
+            type="button"
+            aria-label="Kéo để sắp xếp"
+            className="cursor-grab active:cursor-grabbing touch-none text-muted-foreground hover:text-foreground shrink-0"
+            {...props}
+        >
+            <GripVertical className="h-4 w-4" />
+        </button>
+    );
+}
+//chương: dùng accordion làm phần tử kéo
+function SortableSectionItem({
+    id, children,
+}: {
+    id: number;
+    children: (handle: React.ReactNode) => React.ReactNode;
+}) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+    return (
+        <AccordionItem
+            ref={setNodeRef}
+            value={String(id)}
+            style={{ transform: CSS.Translate.toString(transform), transition }}
+            className={cn("border-b last:border-b-0 bg-background relative", isDragging && "z-10 opacity-60 shadow-lg")}
+        >
+            {children(<DragHandle {...attributes} {...listeners} />)}
+        </AccordionItem>
+    );
+}
+// Bài học
+function SortableLessonItem({
+    id, children,
+}: {
+    id: number;
+    children: (handle: React.ReactNode) => React.ReactNode;
+}) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+    return (
+        <div
+            ref={setNodeRef}
+            style={{ transform: CSS.Translate.toString(transform), transition }}
+            className={cn("rounded-lg border bg-card overflow-hidden group relative", isDragging && "z-10 opacity-60 shadow-lg")}
+        >
+            {children(<DragHandle {...attributes} {...listeners} />)}
+        </div>
+    );
+}
 
 export default function CurriculumView({ courseId }: { courseId: string }) {
     const router = useRouter();
@@ -126,7 +188,30 @@ export default function CurriculumView({ courseId }: { courseId: string }) {
         });
         return { totalSections: sections.length, totalLessons, totalDuration, totalResources };
     }, [sections]);
-    
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    );
+    const { mutate: reorderSections } = useReorderSections(courseId);
+    const { mutate: reorderLessons } = useReorderLessons(courseId);
+
+    const handleSectionDragEnd = ({ active, over }: DragEndEvent) => {
+        if (!over || active.id === over.id || !sections) return;
+        const oldIndex = sections.findIndex((s: SectionTypeResponse) => s.id === active.id);
+        const newIndex = sections.findIndex((s: SectionTypeResponse) => s.id === over.id);
+        const next = arrayMove(sections as SectionTypeResponse[], oldIndex, newIndex);
+        reorderSections(next.map((s) => s.id));
+    };
+
+    const handleLessonDragEnd = (section: SectionTypeResponse) => ({ active, over }: DragEndEvent) => {
+        if (!over || active.id === over.id) return;
+        const oldIndex = section.lessons.findIndex((l) => l.id === active.id);
+        const newIndex = section.lessons.findIndex((l) => l.id === over.id);
+        const next = arrayMove(section.lessons, oldIndex, newIndex);
+        reorderLessons({ sectionId: section.id, lessonIds: next.map((l) => l.id) });
+    };
+
 
     return (
         <div className="p-6 space-y-6">
@@ -210,214 +295,245 @@ export default function CurriculumView({ courseId }: { courseId: string }) {
             </div>
 
             {/* Sections Accordion */}
-            <div className="rounded-xl border shadow-sm">
-                <Accordion type="multiple" className="w-full">
-                    {sections && sections.length > 0 ? sections?.map((section: SectionTypeResponse, sectionIndex: number) => {
-                        let totalDurationOfSection = 0;
-                        section.lessons.forEach((lesson: LessonWithResources) => {
-                            totalDurationOfSection += lesson.duration || 0;
-                        });
-                        return (
-                            <AccordionItem key={section.id} value={String(section.id)} className="border-b last:border-b-0">
-                                <div className="flex items-center justify-between w-full group/section hover:bg-muted/30 px-5 transition-colors">
-                                    <AccordionTrigger className="hover:no-underline py-4 flex-1 min-w-0 pr-3">
-                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full min-w-0 gap-2 sm:gap-4 mr-2">
-                                            <div className="flex items-center gap-3 min-w-0">
-                                                <div className="flex items-center justify-center h-7 w-7 rounded-md bg-primary/10 text-primary text-xs font-bold shrink-0">
-                                                    {sectionIndex + 1}
-                                                </div>
-                                                <span className="font-semibold text-sm sm:truncate text-left leading-tight">
-                                                    {section.title}
-                                                </span>
-                                            </div>
-
-                                            <div className="flex items-center gap-2 text-xs text-muted-foreground font-normal shrink-0 ml-10 sm:ml-0">
-                                                <Badge variant="secondary" className="font-normal gap-1 text-xs">
-                                                    <BookOpen className="h-3 w-3" />
-                                                    {section.lessons.length ?? 0}
-                                                </Badge>
-                                                <Badge variant="secondary" className="font-normal gap-1 text-xs">
-                                                    <Clock className="h-3 w-3" />
-                                                    {formatLessonDuration(totalDurationOfSection)}
-                                                </Badge>
-                                            </div>
-                                        </div>
-                                    </AccordionTrigger>
-
-                                    <div className="flex items-center space-x-1 opacity-0 group-hover/section:opacity-100 transition-opacity shrink-0 ml-1">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-muted-foreground hover:text-blue-600 hover:bg-blue-50"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                setEditingSection(section);
-                                                setIsEditSectionOpen(true);
-                                            }}
-                                        >
-                                            <Edit2 className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                setDeleteSection(section);
-                                                setShowDeleteSectionAlert(true);
-                                            }}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                                <AccordionContent className="px-5 pt-2 pb-5">
-                                    <div className="space-y-2">
-                                        {section?.lessons?.length > 0 ? (
-                                            section?.lessons?.map((lesson: LessonWithResources, lessonIndex: number) => (
-                                                <div
-                                                    key={lesson.id}
-                                                    className="rounded-lg border bg-card overflow-hidden group"
-                                                >
-                                                    {/* Lesson Header Row */}
-                                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-muted/30 transition-colors gap-3 sm:gap-0">
-                                                        <div className="flex items-center gap-3 min-w-0 flex-1 mr-0 sm:mr-3">
-                                                            <div className="flex items-center justify-center h-6 w-6 rounded-full bg-muted text-muted-foreground text-xs font-medium shrink-0">
-                                                                {lessonIndex + 1}
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionDragEnd}>
+                <SortableContext
+                    items={(sections ?? []).map((s: SectionTypeResponse) => s.id)}
+                    strategy={verticalListSortingStrategy}
+                >
+                    <div className="rounded-xl border shadow-sm">
+                        <Accordion type="multiple" className="w-full">
+                            {sections && sections.length > 0 ? sections?.map((section: SectionTypeResponse, sectionIndex: number) => {
+                                let totalDurationOfSection = 0;
+                                section.lessons.forEach((lesson: LessonWithResources) => {
+                                    totalDurationOfSection += lesson.duration || 0;
+                                });
+                                return (
+                                    <SortableSectionItem key={section.id} id={section.id}>
+                                        {(handle) => (
+                                            <>
+                                                <div className="flex items-center justify-between w-full group/section hover:bg-muted/30 px-5 transition-colors">
+                                                    <div className="mr-2">{handle}</div>
+                                                    <AccordionTrigger className="hover:no-underline py-4 flex-1 min-w-0 pr-3">
+                                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full min-w-0 gap-2 sm:gap-4 mr-2">
+                                                            <div className="flex items-center gap-3 min-w-0">
+                                                                <div className="flex items-center justify-center h-7 w-7 rounded-md bg-primary/10 text-primary text-xs font-bold shrink-0">
+                                                                    {sectionIndex + 1}
+                                                                </div>
+                                                                <span className="font-semibold text-sm sm:truncate text-left leading-tight">
+                                                                    {section.title}
+                                                                </span>
                                                             </div>
-                                                            <FileVideo className="h-4 w-4 text-primary shrink-0" />
-                                                            <span className="font-medium text-sm sm:truncate leading-tight">{lesson.title}</span>
-                                                            {lesson.isPreview && (
-                                                                <Badge variant="outline" className="shrink-0 gap-1 border-emerald-500/40 bg-emerald-500/10 text-emerald-600 text-[11px] px-1.5 py-0">
-                                                                    <Eye className="h-3 w-3 hidden sm:inline-block" />
-                                                                    Xem trước
-                                                                </Badge>
-                                                            )}
-                                                        </div>
 
-                                                        <div className="flex items-center gap-2 shrink-0 ml-9 sm:ml-0 justify-between sm:justify-end">
-                                                            {lesson.duration && (
-                                                                <Badge variant="outline" className="font-normal text-xs gap-1">
+                                                            <div className="flex items-center gap-2 text-xs text-muted-foreground font-normal shrink-0 ml-10 sm:ml-0">
+                                                                <Badge variant="secondary" className="font-normal gap-1 text-xs">
+                                                                    <BookOpen className="h-3 w-3" />
+                                                                    {section.lessons.length ?? 0}
+                                                                </Badge>
+                                                                <Badge variant="secondary" className="font-normal gap-1 text-xs">
                                                                     <Clock className="h-3 w-3" />
-                                                                    {formatLessonDuration(lesson.duration)}
+                                                                    {formatLessonDuration(totalDurationOfSection)}
                                                                 </Badge>
-                                                            )}
-
-                                                            {/* Video preview button or status */}
-                                                            {['PENDING', 'UPLOADING', 'PROCESSING', 'FAILED'].includes(lesson.videoStatus) && (
-                                                                <Badge variant="secondary" className="font-normal text-[10px] uppercase bg-blue-50 text-blue-600 hover:bg-blue-50 border-blue-200">
-                                                                    {lesson.videoStatus === 'PENDING' ? 'Chờ xử lý' :
-                                                                        lesson.videoStatus === 'UPLOADING' ? 'Đang tải lên' :
-                                                                            lesson.videoStatus === 'PROCESSING' ? 'Đang xử lý' : 'Thất bại'}
-                                                                </Badge>
-                                                            )}
-                                                            {lesson.videoStatus === 'READY' && lesson.videoId && (
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                                                                    onClick={() => {
-                                                                        setVideoPreviewLesson(lesson);
-                                                                        setShowVideoPreview(true);
-                                                                    }}
-                                                                    title="Xem video"
-                                                                >
-                                                                    <Play className="h-3.5 w-3.5" />
-                                                                </Button>
-                                                            )}
-
-                                                            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    className="h-8 w-8 text-muted-foreground hover:text-blue-600 hover:bg-blue-50"
-                                                                    onClick={(e) => {
-                                                                        e.preventDefault();
-                                                                        e.stopPropagation();
-                                                                        setEditingLesson(lesson);
-                                                                        setIsEditLessonOpen(true);
-                                                                    }}
-                                                                >
-                                                                    <Edit2 className="h-3.5 w-3.5" />
-                                                                </Button>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50"
-                                                                    onClick={(e) => {
-                                                                        e.preventDefault();
-                                                                        e.stopPropagation();
-                                                                        setDeletingLesson(lesson);
-                                                                        setShowDeleteLessonAlert(true);
-                                                                    }}
-                                                                >
-                                                                    <Trash2 className="h-3.5 w-3.5" />
-                                                                </Button>
                                                             </div>
                                                         </div>
+                                                    </AccordionTrigger>
+
+                                                    <div className="flex items-center space-x-1 opacity-0 group-hover/section:opacity-100 transition-opacity shrink-0 ml-1">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 text-muted-foreground hover:text-blue-600 hover:bg-blue-50"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                setEditingSection(section);
+                                                                setIsEditSectionOpen(true);
+                                                            }}
+                                                        >
+                                                            <Edit2 className="h-4 w-4" />
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                setDeleteSection(section);
+                                                                setShowDeleteSectionAlert(true);
+                                                            }}
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
                                                     </div>
-
-                                                    {/* Resources Row */}
-                                                    {lesson.resources && lesson.resources.length > 0 && (
-                                                        <div className="border-t bg-muted/20 px-3 py-2">
-                                                            <div className="flex items-center gap-2 flex-wrap">
-                                                                <Paperclip className="h-3 w-3 text-muted-foreground shrink-0" />
-                                                                {lesson.resources.map((resource) => (
-                                                                    <button
-                                                                        key={resource.id}
-                                                                        onClick={() => handleDownloadResource(lesson.id, resource)}
-                                                                        disabled={downloadingResourceId === resource.id}
-                                                                        className="inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded-md border bg-background hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 cursor-pointer"
-                                                                        title={`Tải ${resource.name} (${formatFileSize(resource.size)})`}
-                                                                    >
-                                                                        {downloadingResourceId === resource.id ? (
-                                                                            <Loader2 className="h-3 w-3 animate-spin" />
-                                                                        ) : (
-                                                                            <Download className="h-3 w-3" />
-                                                                        )}
-                                                                        <span className="truncate max-w-[150px]">{resource.name}</span>
-                                                                        <span className="text-muted-foreground">({formatFileSize(resource.size)})</span>
-                                                                    </button>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    )}
                                                 </div>
-                                            ))
-                                        ) : (
-                                            <div className="py-8 text-center text-sm text-muted-foreground border border-dashed rounded-lg bg-muted/10">
-                                                <BookOpen className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
-                                                Chưa có bài học nào trong chương này
-                                            </div>
-                                        )}
+                                                <AccordionContent className="px-5 pt-2 pb-5">
+                                                    <div className="space-y-2">
+                                                        {section?.lessons?.length > 0 ? (
+                                                            <DndContext
+                                                                sensors={sensors}
+                                                                collisionDetection={closestCenter}
+                                                                onDragEnd={handleLessonDragEnd(section)}
+                                                            >
+                                                                <SortableContext
+                                                                    items={section.lessons.map((l) => l.id)}
+                                                                    strategy={verticalListSortingStrategy}
+                                                                >
+                                                                    <div className="space-y-2">
+                                                                        {section?.lessons?.map((lesson: LessonWithResources, lessonIndex: number) => (
+                                                                            <SortableLessonItem key={lesson.id} id={lesson.id}>
+                                                                                {(handle) => (
+                                                                                    <>
+                                                                                        <div
+                                                                                            key={lesson.id}
+                                                                                            className="rounded-lg border bg-card overflow-hidden group"
+                                                                                        >
+                                                                                            {/* Lesson Header Row */}
+                                                                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-muted/30 transition-colors gap-3 sm:gap-0">
+                                                                                                <div className="flex items-center gap-3 min-w-0 flex-1 mr-0 sm:mr-3">
+                                                                                                    {handle}
+                                                                                                    <div className="flex items-center justify-center h-6 w-6 rounded-full bg-muted text-muted-foreground text-xs font-medium shrink-0">
+                                                                                                        {lessonIndex + 1}
+                                                                                                    </div>
+                                                                                                    <FileVideo className="h-4 w-4 text-primary shrink-0" />
+                                                                                                    <span className="font-medium text-sm sm:truncate leading-tight">{lesson.title}</span>
+                                                                                                    {lesson.isPreview && (
+                                                                                                        <Badge variant="outline" className="shrink-0 gap-1 border-emerald-500/40 bg-emerald-500/10 text-emerald-600 text-[11px] px-1.5 py-0">
+                                                                                                            <Eye className="h-3 w-3 hidden sm:inline-block" />
+                                                                                                            Xem trước
+                                                                                                        </Badge>
+                                                                                                    )}
+                                                                                                </div>
 
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => {
-                                                setAddLesson({ sectionId: section.id });
-                                                setIsAddLessonOpen(true);
-                                            }}
-                                            className="w-full border-dashed border-2 hover:border-solid hover:bg-accent/60 transition-all gap-2 mt-2"
-                                        >
-                                            <Plus className="h-4 w-4" />
-                                            <span>Thêm bài mới</span>
-                                        </Button>
-                                    </div>
-                                </AccordionContent>
-                            </AccordionItem>
-                        )
-                    })
-                        :
-                        <div className="text-center py-12 text-muted-foreground">
-                            <Layers className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
-                            <p className="font-medium">Chưa có chương nào</p>
-                            <p className="text-sm mt-1">Bấm &quot;Thêm Chương mới&quot; để bắt đầu xây dựng nội dung</p>
-                        </div>
-                    }
-                </Accordion>
-            </div>
+                                                                                                <div className="flex items-center gap-2 shrink-0 ml-9 sm:ml-0 justify-between sm:justify-end">
+                                                                                                    {lesson.duration && (
+                                                                                                        <Badge variant="outline" className="font-normal text-xs gap-1">
+                                                                                                            <Clock className="h-3 w-3" />
+                                                                                                            {formatLessonDuration(lesson.duration)}
+                                                                                                        </Badge>
+                                                                                                    )}
+
+                                                                                                    {/* Video preview button or status */}
+                                                                                                    {['PENDING', 'UPLOADING', 'PROCESSING', 'FAILED'].includes(lesson.videoStatus) && (
+                                                                                                        <Badge variant="secondary" className="font-normal text-[10px] uppercase bg-blue-50 text-blue-600 hover:bg-blue-50 border-blue-200">
+                                                                                                            {lesson.videoStatus === 'PENDING' ? 'Chờ xử lý' :
+                                                                                                                lesson.videoStatus === 'UPLOADING' ? 'Đang tải lên' :
+                                                                                                                    lesson.videoStatus === 'PROCESSING' ? 'Đang xử lý' : 'Thất bại'}
+                                                                                                        </Badge>
+                                                                                                    )}
+                                                                                                    {lesson.videoStatus === 'READY' && lesson.videoId && (
+                                                                                                        <Button
+                                                                                                            variant="ghost"
+                                                                                                            size="icon"
+                                                                                                            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                                                                                            onClick={() => {
+                                                                                                                setVideoPreviewLesson(lesson);
+                                                                                                                setShowVideoPreview(true);
+                                                                                                            }}
+                                                                                                            title="Xem video"
+                                                                                                        >
+                                                                                                            <Play className="h-3.5 w-3.5" />
+                                                                                                        </Button>
+                                                                                                    )}
+
+                                                                                                    <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                                        <Button
+                                                                                                            variant="ghost"
+                                                                                                            size="icon"
+                                                                                                            className="h-8 w-8 text-muted-foreground hover:text-blue-600 hover:bg-blue-50"
+                                                                                                            onClick={(e) => {
+                                                                                                                e.preventDefault();
+                                                                                                                e.stopPropagation();
+                                                                                                                setEditingLesson(lesson);
+                                                                                                                setIsEditLessonOpen(true);
+                                                                                                            }}
+                                                                                                        >
+                                                                                                            <Edit2 className="h-3.5 w-3.5" />
+                                                                                                        </Button>
+                                                                                                        <Button
+                                                                                                            variant="ghost"
+                                                                                                            size="icon"
+                                                                                                            className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                                                                                                            onClick={(e) => {
+                                                                                                                e.preventDefault();
+                                                                                                                e.stopPropagation();
+                                                                                                                setDeletingLesson(lesson);
+                                                                                                                setShowDeleteLessonAlert(true);
+                                                                                                            }}
+                                                                                                        >
+                                                                                                            <Trash2 className="h-3.5 w-3.5" />
+                                                                                                        </Button>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+
+                                                                                            {/* Resources Row */}
+                                                                                            {lesson.resources && lesson.resources.length > 0 && (
+                                                                                                <div className="border-t bg-muted/20 px-3 py-2">
+                                                                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                                                                        <Paperclip className="h-3 w-3 text-muted-foreground shrink-0" />
+                                                                                                        {lesson.resources.map((resource) => (
+                                                                                                            <button
+                                                                                                                key={resource.id}
+                                                                                                                onClick={() => handleDownloadResource(lesson.id, resource)}
+                                                                                                                disabled={downloadingResourceId === resource.id}
+                                                                                                                className="inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded-md border bg-background hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 cursor-pointer"
+                                                                                                                title={`Tải ${resource.name} (${formatFileSize(resource.size)})`}
+                                                                                                            >
+                                                                                                                {downloadingResourceId === resource.id ? (
+                                                                                                                    <Loader2 className="h-3 w-3 animate-spin" />
+                                                                                                                ) : (
+                                                                                                                    <Download className="h-3 w-3" />
+                                                                                                                )}
+                                                                                                                <span className="truncate max-w-[150px]">{resource.name}</span>
+                                                                                                                <span className="text-muted-foreground">({formatFileSize(resource.size)})</span>
+                                                                                                            </button>
+                                                                                                        ))}
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    </>
+                                                                                )}
+                                                                            </SortableLessonItem>
+                                                                        ))}
+                                                                    </div>
+                                                                </SortableContext>
+                                                            </DndContext>
+                                                        ) : (
+                                                            <div className="py-8 text-center text-sm text-muted-foreground border border-dashed rounded-lg bg-muted/10">
+                                                                <BookOpen className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
+                                                                Chưa có bài học nào trong chương này
+                                                            </div>
+                                                        )}
+
+                                                        <Button
+                                                            variant="outline"
+                                                            onClick={() => {
+                                                                setAddLesson({ sectionId: section.id });
+                                                                setIsAddLessonOpen(true);
+                                                            }}
+                                                            className="w-full border-dashed border-2 hover:border-solid hover:bg-accent/60 transition-all gap-2 mt-2"
+                                                        >
+                                                            <Plus className="h-4 w-4" />
+                                                            <span>Thêm bài mới</span>
+                                                        </Button>
+                                                    </div>
+                                                </AccordionContent>
+                                            </>)}
+                                    </SortableSectionItem>
+                                )
+                            })
+                                :
+                                <div className="text-center py-12 text-muted-foreground">
+                                    <Layers className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+                                    <p className="font-medium">Chưa có chương nào</p>
+                                    <p className="text-sm mt-1">Bấm &quot;Thêm Chương mới&quot; để bắt đầu xây dựng nội dung</p>
+                                </div>
+                            }
+                        </Accordion>
+                    </div>
+                </SortableContext>
+            </DndContext>
 
             {/* Video Preview Modal */}
             <ModalVideoPreview

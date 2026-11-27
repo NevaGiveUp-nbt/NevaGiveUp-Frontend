@@ -6,7 +6,7 @@ import { useCourseReviewsForUser } from "@/hooks/useCourseReview";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Loader2, Pencil } from "lucide-react";
+import { Loader2, MessagesSquare, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CourseReviewWriteForm } from "./CourseReviewWriteForm";
 import {
@@ -105,7 +105,7 @@ export default function CourseReviews({ slug }: { slug: string }) {
             </>
           )}
 
-          {pages}   
+          {pages}
 
           {endPage < totalPages && (
             <>
@@ -138,7 +138,7 @@ export default function CourseReviews({ slug }: { slug: string }) {
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-bold text-foreground tracking-tight">Đánh giá từ học viên</h3>
         {!isWriting && !reviews?.hasReviewed && (
-          <Button 
+          <Button
             onClick={handleWriteReviewClick}
             className="bg-zinc-900 hover:bg-zinc-800 text-white"
           >
@@ -171,9 +171,13 @@ export default function CourseReviews({ slug }: { slug: string }) {
           {renderPagination()}
         </>
       ) : (
-        <div className="p-4 rounded-xl border border-border space-y-3 bg-card text-center">
-          <p className="text-muted-foreground text-xs sm:text-sm">
-            <i>Không có đánh giá nào.</i>
+        <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
+          <MessagesSquare
+            className="h-14 w-14 text-slate-300 dark:text-slate-600"
+            strokeWidth={1.5}
+          />
+          <p className="max-w-md text-sm font-medium italic text-slate-500 dark:text-slate-400">
+            Hiện tại chưa có đánh giá nào cho khóa học này. Hãy là người đầu tiên đánh giá khóa học.
           </p>
         </div>
       )}

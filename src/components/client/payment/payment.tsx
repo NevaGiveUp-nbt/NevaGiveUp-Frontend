@@ -87,21 +87,38 @@ export default function Payment({ orderNumber, onSuccess }: PaymentProps) {
             {/* Header */}
             <div className={`p-6 text-center ${isSuccess ? 'bg-green-500 dark:bg-green-600' : isFailed ? 'bg-destructive' : 'bg-muted text-foreground'} transition-colors duration-500`}>
                 {isSuccess ? (
-                    <CheckCircle className="w-16 h-16 mx-auto mb-3" />
+                    <CheckCircle className="w-16 h-16 mx-auto mb-3 text-white" />
                 ) : isFailed ? (
-                    <XCircle className="w-16 h-16 mx-auto mb-3e" />
+                    <XCircle className="w-16 h-16 mx-auto mb-3e " />
                 ) : (
                     <div className="relative w-16 h-16 mx-auto mb-3">
                         <div className="absolute inset-0 border-4 border-muted rounded-full"></div>
                         <div className="absolute inset-0 border-4 border-primary rounded-full border-t-transparent animate-spin"></div>
                     </div>
                 )}
-                <h2 className="text-2xl font-bold">
-                    {isSuccess ? 'Thanh toán thành công' : isFailed ? 'Thanh toán thất bại' : 'Đang chờ thanh toán'}
-                </h2>
-                <p className=" mt-1 text-sm">
-                    {isSuccess ? 'Cảm ơn bạn đã mua khóa học!' : isFailed ? 'Đơn hàng đã hết hạn hoặc bị lỗi.' : 'Vui lòng hoàn tất thanh toán để nhận khóa học'}
-                </p>
+                {
+                    isSuccess ?
+                        <h2 className="text-2xl font-bold text-white text-shadow-md ">
+                            Thanh toán thành công
+                        </h2>
+                        :
+                        isFailed ?
+                            <h2 className="text-2xl font-bold  dark:text-white text-shadow-md ">
+                                Thanh toán thất bại
+                            </h2>
+                            :
+                            <h2 className="text-2xl font-bold  dark:text-white text-shadow-md ">
+                                Đang chờ thanh toán
+                            </h2>
+                }
+                {
+                    isSuccess ? 
+                    <p className=" mt-1 text-sm text-white">Cảm ơn bạn đã mua khóa học!</p>
+                     : 
+                    isFailed ? 
+                    <p className=" mt-1 text-sm dark:text-white">Đơn hàng đã hết hạn hoặc bị lỗi.</p> : 
+                    <p className=" mt-1 text-sm dark:text-white">Vui lòng hoàn tất thanh toán để nhận khóa học</p>
+                }
             </div>
 
             {/* Content */}
@@ -130,10 +147,10 @@ export default function Payment({ orderNumber, onSuccess }: PaymentProps) {
                         <span className="font-bold text-lg text-primary">{formatCurrency(payment.amount)}</span>
                     </div>
 
-                    <div className="flex justify-between items-center py-3 border-b border-border">
+                    {/* <div className="flex justify-between items-center py-3 border-b border-border">
                         <span className="text-muted-foreground text-sm">Sản phẩm</span>
-                        {/* <span className="font-semibold text-foreground">{payment.order.orderItems.map((orderItem) => orderItem.course?.title).join(', ')}</span> */}
-                    </div>
+                        <span className="font-semibold text-foreground">{payment.order.orderItems.map((orderItem) => orderItem.course?.title).join(', ')}</span> 
+                    </div> */}
 
                     <div className="flex justify-between items-center py-3 border-b border-border">
                         <span className="text-muted-foreground text-sm">Mã thanh toán</span>

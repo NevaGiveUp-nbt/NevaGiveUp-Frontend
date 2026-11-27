@@ -39,7 +39,6 @@ export const SheetEditLesson = ({ open, onOpenChange, lesson }: SheetEditLessonP
             content: "",
             isPreview: false,
             sectionId: undefined,
-            order: 0,
         },
     });
 
@@ -50,7 +49,6 @@ export const SheetEditLesson = ({ open, onOpenChange, lesson }: SheetEditLessonP
                 content: lesson.content || '',
                 isPreview: lesson.isPreview,
                 sectionId: lesson.sectionId,
-                order: Number(lesson.order),
             });
             // Reset file states when lesson changes
             setSelectedVideo(null);
@@ -192,47 +190,24 @@ export const SheetEditLesson = ({ open, onOpenChange, lesson }: SheetEditLessonP
                                     </Field>
                                 )}
                             />
-                            <div className="grid grid-cols-2 gap-3">
-                                <Controller
-                                    name="order"
-                                    control={form.control}
-                                    render={({ field, fieldState }) => (
-                                        <Field data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor="section-order">
-                                                Thứ tự <span className="text-red-500">*</span>
-                                            </FieldLabel>
-                                            <Input
-                                                {...field}
-                                                onChange={(e) => field.onChange(Number(e.target.value))}
-                                                id="section-order"
-                                                type="number"
-                                                min={0}
-                                                placeholder="1"
-                                                autoComplete="off"
+                            <Controller
+                                name="isPreview"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid} className="flex flex-col justify-end">
+                                        <div className="flex items-center gap-2 h-9">
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                                id="lesson-isPreview"
                                             />
-                                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                                        </Field>
-                                    )}
-                                />
-                                <Controller
-                                    name="isPreview"
-                                    control={form.control}
-                                    render={({ field, fieldState }) => (
-                                        <Field data-invalid={fieldState.invalid} className="flex flex-col justify-end">
-                                            <div className="flex items-center gap-2 h-9">
-                                                <Checkbox
-                                                    checked={field.value}
-                                                    onCheckedChange={field.onChange}
-                                                    id="lesson-isPreview"
-                                                />
-                                                <FieldLabel htmlFor="lesson-isPreview" className="!mb-0">
-                                                    Cho phép xem trước
-                                                </FieldLabel>
-                                            </div>
-                                        </Field>
-                                    )}
-                                />
-                            </div>
+                                            <FieldLabel htmlFor="lesson-isPreview" className="!mb-0">
+                                                Cho phép xem trước
+                                            </FieldLabel>
+                                        </div>
+                                    </Field>
+                                )}
+                            />
                         </div>
 
                         <Separator />

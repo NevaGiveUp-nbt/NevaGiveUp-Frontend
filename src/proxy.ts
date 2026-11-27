@@ -1,7 +1,6 @@
 
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
-import { RoleSchema } from "./types/generated-zod/schemas";
 import { SYSTEM_ROLES } from "./constants/roles.constant";
 
 export const config = {
