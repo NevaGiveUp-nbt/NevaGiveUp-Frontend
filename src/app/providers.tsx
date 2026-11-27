@@ -1,11 +1,24 @@
 'use client'
 
-import { isServer, QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { isServer, MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState } from 'react'
+import { toast } from 'sonner';
 
 function makeQueryClient() {
+    const onError = (error: unknown) => {
+        const e = error as { status?: number; message?: string };
+        if (e?.status === 401) return; // 401 đã xử lý ở interceptor (signOut)
+        toast.error(e?.message || "Có lỗi xảy ra");
+    };
     return new QueryClient({
+        queryCache: new QueryCache({ onError }),
+        mutationCache: new MutationCache({
+            onError: (error, _variables, _onMutateResult, mutation) => {
+                if (mutation.options.onError) return;
+                onError(error);
+            },
+        }),
         defaultOptions: {
             queries: {
                 // Trong Next.js, thường ta muốn đặt staleTime > 0 

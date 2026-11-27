@@ -153,6 +153,7 @@ function ReviewCard({ slug, review, params }: { slug: string, review: ReviewItem
             </div>
             <ConfirmModal
                 isOpen={isDeleting}
+                type = {"delete"}
                 onClose={() => setIsDeleting(false)}
                 onConfirm={handleDeleteReview}
                 title="Xóa đánh giá?"

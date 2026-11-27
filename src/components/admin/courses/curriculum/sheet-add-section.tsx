@@ -15,7 +15,6 @@ export const SheetAddSection = ({ courseId, open, onOpenChange }: { courseId: st
         resolver: zodResolver(CreateSectionSchema),
         defaultValues: {
             title: "",
-            order: 0,
             courseId: courseId,
         },
     });
@@ -67,15 +66,16 @@ export const SheetAddSection = ({ courseId, open, onOpenChange }: { courseId: st
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid}>
                                     <FieldLabel htmlFor="section-order">
-                                        Thứ tự  <span className="text-red-500">*</span>
+                                        Thứ tự (không bắt buộc)
                                     </FieldLabel>
                                     <Input
                                         {...field}
-                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                        value={field.value ?? ""}
+                                        onChange={(e) => field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)}
                                         id="section-order"
                                         type="number"
-                                        min={0}
-                                        placeholder="1"
+                                        min={1}
+                                        placeholder="Tự động"
                                         autoComplete="off"
                                     />
                                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

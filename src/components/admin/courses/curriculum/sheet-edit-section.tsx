@@ -13,7 +13,7 @@ import { toast } from "sonner";
 interface SheetEditSectionProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    section: { id: number; title: string, order: number, courseId: string } | null;
+    section: { id: number; title: string, courseId: string } | null;
 }
 
 export const SheetEditSection = ({ open, onOpenChange, section }: SheetEditSectionProps) => {
@@ -21,7 +21,6 @@ export const SheetEditSection = ({ open, onOpenChange, section }: SheetEditSecti
         resolver: zodResolver(UpdateSectionSchema),
         defaultValues: {
             title: "",
-            order: 0,
             courseId: section?.courseId,
         },
     });
@@ -29,7 +28,6 @@ export const SheetEditSection = ({ open, onOpenChange, section }: SheetEditSecti
         if (section) {
             form.reset({
                 title: section.title,
-                order: Number(section.order),
                 courseId: section.courseId,
             });
         }
@@ -73,27 +71,6 @@ export const SheetEditSection = ({ open, onOpenChange, section }: SheetEditSecti
                                         {...field}
                                         id="section-title"
                                         placeholder="Phần 1: Giới thiệu khóa học"
-                                        autoComplete="off"
-                                    />
-                                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                                </Field>
-                            )}
-                        />
-                        <Controller
-                            name="order"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <Field data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor="section-order">
-                                        Thứ tự  <span className="text-red-500">*</span>
-                                    </FieldLabel>
-                                    <Input
-                                        {...field}
-                                        onChange={(e) => field.onChange(Number(e.target.value))}
-                                        id="section-order"
-                                        type="number"
-                                        min={0}
-                                        placeholder="1"
                                         autoComplete="off"
                                     />
                                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

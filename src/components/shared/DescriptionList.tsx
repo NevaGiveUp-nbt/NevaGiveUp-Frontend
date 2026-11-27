@@ -43,7 +43,9 @@ export function DescriptionList({
         <ul className={`grid ${colClass} gap-x-6 gap-y-3`}>
             {items.map((item, index) => (
                 <li key={index} className="flex items-start gap-3">
-                    <Icon className="mt-1 size-4 shrink-0 text-foreground" />
+                    <div className="h-full flex items-center justify-center">
+                        <Icon className="size-4 shrink-0 text-foreground" />
+                    </div>
                     <span className="text-sm text-muted-foreground">{item}</span>
                 </li>
             ))}
